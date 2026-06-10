@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { TabBar } from "./components/TabBar";
 import { MarkdownEditor } from "./components/MarkdownEditor";
+import { DocxPreview } from "./components/DocxPreview";
 import { SettingsPanel } from "./components/SettingsPanel";
 import {
   DEFAULT_METADATA,
@@ -59,6 +60,8 @@ export default function Home() {
   const [settings, setSettings] = useState<DocxSettings>(DEFAULT_SETTINGS);
   const [isConverting, setIsConverting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showEditor, setShowEditor] = useState(true);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleConvert = async () => {
     setIsConverting(true);
@@ -93,7 +96,52 @@ export default function Home() {
 
         <div className="tab-content">
           {activeTab === "editor" && (
-            <MarkdownEditor value={markdown} onChange={setMarkdown} />
+            <>
+              <div className="editor-toggles">
+                <label className="editor-toggle-label">
+                  <span className="editor-toggle-switch">
+                    <input
+                      type="checkbox"
+                      checked={showEditor}
+                      onChange={(e) => setShowEditor(e.target.checked)}
+                    />
+                    <span className="editor-toggle-track" />
+                  </span>
+                  Editor
+                </label>
+                <label className="editor-toggle-label">
+                  <span className="editor-toggle-switch">
+                    <input
+                      type="checkbox"
+                      checked={showPreview}
+                      onChange={(e) => setShowPreview(e.target.checked)}
+                    />
+                    <span className="editor-toggle-track" />
+                  </span>
+                  Pré-visualização
+                </label>
+              </div>
+              <div
+                className="editor-layout"
+                data-show-editor={showEditor}
+                data-show-preview={showPreview}
+              >
+                {showEditor && (
+                  <div className="editor-pane">
+                    <MarkdownEditor value={markdown} onChange={setMarkdown} />
+                  </div>
+                )}
+                {showPreview && (
+                  <div className="preview-pane">
+                    <DocxPreview
+                      markdown={markdown}
+                      metadata={metadata}
+                      settings={settings}
+                    />
+                  </div>
+                )}
+              </div>
+            </>
           )}
           {activeTab === "settings" && (
             <SettingsPanel

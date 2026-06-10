@@ -71,11 +71,10 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: 960px;
   width: 100%;
-  margin: 0 auto;
   padding: 1.5rem 2rem;
   gap: 1rem;
+  box-sizing: border-box;
 }
 
 /* ── Tab Bar ── */
@@ -112,20 +111,117 @@ body {
 
 .tab-content {
   flex: 1;
-  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* ── Editor ── */
 
+.editor-toggles {
+  display: flex;
+  gap: 1.5rem;
+  padding-bottom: 0.75rem;
+  flex-shrink: 0;
+}
+
+.editor-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--foreground);
+  cursor: pointer;
+  user-select: none;
+}
+
+.editor-toggle-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.editor-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.editor-toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 20px;
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+.editor-toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.editor-toggle-switch input:checked + .editor-toggle-track {
+  background: var(--primary);
+}
+
+.editor-toggle-switch input:checked + .editor-toggle-track::after {
+  transform: translateX(16px);
+}
+
+.editor-toggle-switch input:focus-visible + .editor-toggle-track {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.editor-layout {
+  display: grid;
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
+  height: calc(100vh - 260px);
+}
+
+.editor-layout[data-show-editor="true"][data-show-preview="true"] {
+  grid-template-columns: 1fr 0.66fr;
+}
+
+.editor-layout[data-show-editor="true"][data-show-preview="false"],
+.editor-layout[data-show-editor="false"][data-show-preview="true"] {
+  grid-template-columns: 1fr;
+}
+
+.editor-pane {
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-pane {
+  display: flex;
+  flex-direction: column;
+}
+
 .editor-container {
-  height: 100%;
-  min-height: 400px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .markdown-textarea {
   width: 100%;
-  height: 100%;
-  min-height: 400px;
+  flex: 1;
+  min-height: 0;
   padding: 1rem;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -134,7 +230,7 @@ body {
   font-family: var(--font-geist-mono, "Courier New", monospace);
   font-size: 0.875rem;
   line-height: 1.6;
-  resize: vertical;
+  resize: none;
   box-sizing: border-box;
 }
 
@@ -146,6 +242,66 @@ body {
 
 .markdown-textarea::placeholder {
   color: var(--text-muted);
+}
+
+/* ── Preview ── */
+
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-alt);
+  flex-shrink: 0;
+}
+
+.preview-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.preview-status {
+  font-size: 0.75rem;
+  color: var(--primary);
+}
+
+.preview-error {
+  padding: 0.5rem 0.75rem;
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--error);
+  font-size: 0.8rem;
+}
+
+.preview-scroll {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.preview-document {
+  display: flex;
+  justify-content: center;
+}
+
+.preview-document > div {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
+  background: #fff;
 }
 
 /* ── Settings Panel ── */
@@ -203,6 +359,7 @@ body {
 .metadata-checkbox input[type="checkbox"] {
   width: 16px;
   height: 16px;
+  appearance: auto;
   accent-color: var(--primary);
   cursor: pointer;
 }
@@ -375,6 +532,7 @@ body {
 .toggle-label input[type="checkbox"] {
   width: 16px;
   height: 16px;
+  appearance: auto;
   accent-color: var(--primary);
   cursor: pointer;
 }
@@ -386,6 +544,7 @@ body {
   justify-content: flex-end;
   gap: 0.75rem;
   padding-top: 0.5rem;
+  flex-shrink: 0;
 }
 
 .convert-button {
@@ -424,6 +583,16 @@ body {
 @media (max-width: 640px) {
   .app-content {
     padding: 1rem;
+  }
+
+  .editor-layout {
+    grid-template-columns: 1fr !important;
+    height: auto;
+  }
+
+  .editor-pane,
+  .preview-pane {
+    min-height: 350px;
   }
 
   .metadata-row {

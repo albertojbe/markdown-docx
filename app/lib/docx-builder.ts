@@ -139,6 +139,71 @@ function buildCodeBlock(
   ];
 }
 
+function buildTable(
+  rows: string[][],
+  settings: DocxSettings
+): Table {
+  const FONT_SIZE = 10;
+  const headerRowIndex = 0;
+  const colCount = Math.max(...rows.map((r) => r.length));
+
+  const tableRows = rows.map((row, rowIndex) => {
+    const isHeader = rowIndex === headerRowIndex && rows.length > 1;
+    const cells: TableCell[] = [];
+
+    for (let col = 0; col < colCount; col++) {
+      const cellText = row[col] ?? "";
+      const runs = isHeader
+        ? [
+            new TextRun({
+              text: cellText,
+              bold: true,
+              color: "FFFFFF",
+              font: settings.mainFont,
+              size: FONT_SIZE * 2,
+            }),
+          ]
+        : buildInlineRuns(cellText, FONT_SIZE, settings);
+
+      cells.push(
+        new TableCell({
+          children: [
+            new Paragraph({
+              alignment: AlignmentType.LEFT,
+              spacing: { before: 40, after: 40 },
+              children: runs,
+            }),
+          ],
+          shading: isHeader
+            ? {
+                type: ShadingType.CLEAR,
+                color: "auto",
+                fill: settings.colorH2.replace("#", ""),
+              }
+            : undefined,
+          borders: {
+            top: { style: BorderStyle.SINGLE, size: 1, color: "AAAAAA" },
+            bottom: { style: BorderStyle.SINGLE, size: 1, color: "AAAAAA" },
+            left: { style: BorderStyle.SINGLE, size: 1, color: "AAAAAA" },
+            right: { style: BorderStyle.SINGLE, size: 1, color: "AAAAAA" },
+          },
+          width: { size: Math.round(100 / colCount), type: WidthType.PERCENTAGE },
+        })
+      );
+    }
+
+    return new TableRow({
+      children: cells,
+      tableHeader: isHeader,
+    });
+  });
+
+  return new Table({
+    rows: tableRows,
+    width: { size: 100, type: WidthType.PERCENTAGE },
+  });
+}
+
 function buildCoverPage(
   metadata: DocxMetadata,
   settings: DocxSettings
@@ -384,10 +449,13 @@ function parseLines(
   level?: number;
   indent?: number;
   language?: string;
+  rows?: string[][];
 }> {
   const HEADING_RE = /^(#{1,4})\s+(.*)/;
   const BULLET_RE = /^(\s*)[-*]\s+(.*)/;
   const NUMBERED_RE = /^(\s*)\d+[.)]\s+(.*)/;
+  const TABLE_ROW_RE = /^\|(.+)\|$/;
+  const TABLE_SEP_RE = /^\|[\s:]*-+[\s:]*(\|[\s:]*-+[\s:]*)*\|$/;
   const lines = text.split("\n");
   const result: Array<{
     type: string;
@@ -395,7 +463,22 @@ function parseLines(
     level?: number;
     indent?: number;
     language?: string;
+    rows?: string[][];
   }> = [];
+
+  function isTableRow(line: string): boolean {
+    return TABLE_ROW_RE.test(line.trim());
+  }
+
+  function isTableSeparator(line: string): boolean {
+    return TABLE_SEP_RE.test(line.trim());
+  }
+
+  function parseTableRowCells(line: string): string[] {
+    const trimmed = line.trim();
+    const inner = trimmed.slice(1, -1);
+    return inner.split("|").map((c) => c.trim());
+  }
 
   let i = 0;
   while (i < lines.length) {
@@ -446,6 +529,28 @@ function parseLines(
         indent: Math.floor(numberedMatch[1].length / 3),
       });
       i++;
+      continue;
+    }
+
+    // Table detection: collect consecutive table-like lines
+    if (isTableRow(line) || isTableSeparator(line)) {
+      const tableLines: string[] = [];
+      while (i < lines.length && (isTableRow(lines[i]) || isTableSeparator(lines[i]))) {
+        tableLines.push(lines[i]);
+        i++;
+      }
+
+      if (tableLines.length >= 2) {
+        const rows: string[][] = [];
+        for (let r = 0; r < tableLines.length; r++) {
+          if (isTableSeparator(tableLines[r])) continue;
+          rows.push(parseTableRowCells(tableLines[r]));
+        }
+        result.push({ type: "table", content: "", rows });
+      } else {
+        // Single table-like line is not a table, treat as paragraph
+        result.push({ type: "paragraph", content: tableLines[0].trim() });
+      }
       continue;
     }
 
@@ -507,7 +612,7 @@ export function buildDocument(
       let color: string;
       const bold = true;
       let italic = false;
-      let underline = false;
+      const underline = false;
 
       switch (level) {
         case 1:
@@ -651,6 +756,19 @@ export function buildDocument(
     }
 
     if (item.type === "blank") continue;
+
+    // Table
+    if (item.type === "table" && item.rows && item.rows.length > 0) {
+      contentChildren.push(
+        new Paragraph({ children: [], spacing: { after: 80 } })
+      );
+      contentChildren.push(buildTable(item.rows, settings));
+      contentChildren.push(
+        new Paragraph({ children: [], spacing: { after: 120 } })
+      );
+      listCounters.clear();
+      continue;
+    }
 
     // Paragraph
     if (item.type === "paragraph") {
