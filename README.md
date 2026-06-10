@@ -87,9 +87,6 @@ Acesse [http://localhost:3000](http://localhost:3000) no navegador.
 |----------|----------|
 | Dado 1   | Dado 2   |
 
-```typescript
-const codigo = "bloco de código";
-```
 ```
 
 ### Metadados Configuráveis
