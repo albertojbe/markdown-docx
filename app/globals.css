@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #f8f9fa;
   --foreground: #171717;
+  --border: #e0e0e0;
+  --primary: #2E75B6;
+  --primary-hover: #1F497D;
+  --surface: #ffffff;
+  --surface-alt: #f2f2f2;
+  --text-muted: #606060;
+  --error: #dc3545;
 }
 
 @theme inline {
@@ -16,11 +23,428 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --border: #333;
+    --primary: #4A90D9;
+    --primary-hover: #6BA5E7;
+    --surface: #1a1a1a;
+    --surface-alt: #252525;
+    --text-muted: #999;
+    --error: #ff6b6b;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans, Arial, Helvetica, sans-serif);
+  margin: 0;
+}
+
+/* ── App Layout ── */
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.app-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin: 0.25rem 0 0;
+}
+
+.app-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+  gap: 1rem;
+}
+
+/* ── Tab Bar ── */
+
+.tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border);
+}
+
+.tab-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s ease;
+}
+
+.tab-button:hover {
+  color: var(--foreground);
+}
+
+.tab-button.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* ── Tab Content ── */
+
+.tab-content {
+  flex: 1;
+  min-height: 400px;
+}
+
+/* ── Editor ── */
+
+.editor-container {
+  height: 100%;
+  min-height: 400px;
+}
+
+.markdown-textarea {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-family: var(--font-geist-mono, "Courier New", monospace);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.markdown-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(46, 117, 182, 0.15);
+}
+
+.markdown-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Settings Panel ── */
+
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.settings-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem;
+}
+
+.settings-section-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+  color: var(--foreground);
+}
+
+.settings-section-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0 0 1rem;
+}
+
+/* ── Metadata Row ── */
+
+.metadata-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.625rem;
+}
+
+.metadata-row:last-child {
+  margin-bottom: 0;
+}
+
+.metadata-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 140px;
+  font-size: 0.85rem;
+  color: var(--foreground);
+  cursor: pointer;
+  user-select: none;
+}
+
+.metadata-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.metadata-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.metadata-input:disabled {
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.metadata-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* ── Color Input ── */
+
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.color-row:last-child {
+  margin-bottom: 0;
+}
+
+.color-label {
+  min-width: 160px;
+  font-size: 0.85rem;
+  color: var(--foreground);
+}
+
+.color-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.color-picker {
+  width: 32px;
+  height: 32px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.color-hex {
+  font-size: 0.8rem;
+  font-family: var(--font-geist-mono, monospace);
+  color: var(--text-muted);
+}
+
+/* ── Number Input ── */
+
+.number-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.number-row:last-child {
+  margin-bottom: 0;
+}
+
+.number-label {
+  min-width: 160px;
+  font-size: 0.85rem;
+  color: var(--foreground);
+}
+
+.number-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.number-input {
+  width: 80px;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 0.85rem;
+  font-family: inherit;
+  text-align: right;
+}
+
+.number-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.number-unit {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ── Font Input ── */
+
+.font-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.font-row:last-child {
+  margin-bottom: 0;
+}
+
+.font-label {
+  min-width: 160px;
+  font-size: 0.85rem;
+  color: var(--foreground);
+}
+
+.font-input {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.font-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* ── Toggle ── */
+
+.toggle-row {
+  margin-bottom: 0.5rem;
+}
+
+.toggle-row:last-child {
+  margin-bottom: 0;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--foreground);
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+/* ── Actions ── */
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.convert-button {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.convert-button:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.convert-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Error ── */
+
+.error-message {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--error);
+  font-size: 0.85rem;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 640px) {
+  .app-content {
+    padding: 1rem;
+  }
+
+  .metadata-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .metadata-input {
+    width: 100%;
+  }
+
+  .color-row,
+  .number-row,
+  .font-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .color-label,
+  .number-label,
+  .font-label {
+    min-width: 0;
+  }
 }
